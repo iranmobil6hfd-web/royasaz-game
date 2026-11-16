@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#10152b">
+<title>Dream Builder</title>
+<style>
+:root{--bg:#10152b;--panel:#1b2342;--panel2:#252f55;--gold:#ffd166;--cyan:#55d6be;--red:#ff6b7a;--muted:#aab4d0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#26345e,#10152b 60%);color:#fff;font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:auto;padding:18px}.hero{text-align:center;padding:20px 10px}.logo{font-size:30px;font-weight:900;letter-spacing:1px;color:var(--gold)}.sub{color:var(--muted);font-size:12px;margin-top:6px}
+.panel{background:rgba(27,35,66,.96);border:1px solid #39466e;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 12px 28px #0003}
+h2{font-size:17px;margin:0 0 12px}.players{display:grid;grid-template-columns:1fr 1fr;gap:10px}.player{background:var(--panel2);padding:13px;border-radius:14px}.player strong{display:block;font-size:13px}.money{font-size:26px;font-weight:bold;color:var(--cyan);margin-top:5px}
+.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.tab,button,select{border:0;border-radius:12px;padding:12px;font-weight:bold;font-size:14px}.tab{background:#303b64;color:#dce4ff}.tab.active{background:var(--gold);color:#20233a}
+button{background:var(--cyan);color:#102039;cursor:pointer}button.secondary{background:#39466e;color:white}button.danger{background:var(--red);color:#260c15}button:disabled{opacity:.35;cursor:not-allowed}
+.item{text-align:center;padding:20px;background:linear-gradient(135deg,#2b3967,#202b4d);border-radius:16px}.emoji{font-size:42px}.itemname{font-size:22px;font-weight:bold;margin:8px 0}.price{font-size:30px;color:var(--gold);font-weight:900}
+.row{display:flex;gap:8px;margin-top:12px}.row>*{flex:1}.hint{font-size:12px;color:var(--muted);line-height:1.8}.status{background:#111a35;border-radius:12px;padding:12px;line-height:1.8;font-size:13px;margin-top:12px}
+.owned{font-size:13px;line-height:2;color:#dbe4ff}.small{font-size:11px;color:var(--muted)}select{width:100%;background:#303b64;color:#fff;margin:5px 0 10px}
+ul{padding-right:20px;margin:5px 0}.winner{color:var(--gold);font-weight:bold}.hidden{display:none}
+@media(min-width:560px){.tabs{grid-template-columns:repeat(3,1fr)}}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="logo">🏆 DREAM BUILDER</div><div class="sub">بساز، پیشنهاد بده، برنده شو!</div></header>
+<section class="panel"><h2>💵 بودجه بازیکنان</h2><div class="players">
+<div class="player"><strong>🔵 بازیکن اول</strong><div class="money" id="m0">$20</div><div class="small" id="n0">۰ آیتم</div></div>
+<div class="player"><strong>🔴 بازیکن دوم</strong><div class="money" id="m1">$20</div><div class="small" id="n1">۰ آیتم</div></div>
+</div></section>
+<section class="panel"><h2>🎯 انتخاب دنیای رؤیایی</h2><div class="tabs" id="tabs"></div></section>
+<section class="panel">
+<h2>🔨 مزایده</h2><div class="hint" id="round">آیتم ۱ از ۱۰</div>
+<div class="item"><div class="emoji" id="emoji">⚽</div><div class="itemname" id="item">رونالدو</div><div class="hint">قیمت فعلی</div><div class="price" id="price">$0</div><div class="hint" id="leader">هنوز پیشنهادی ثبت نشده</div></div>
+<div class="status" id="turn">نوبت بازیکن اول است.</div>
+<div class="row"><button id="bid">پیشنهاد +۱ دلار</button><button class="secondary" id="pass">رد کردن</button></div>
+<div class="row"><button class="secondary" id="next" disabled>آیتم بعدی ⟵</button><button class="danger" id="reset">شروع دوباره</button></div>
+<p class="hint">هر بازیکن به نوبت پیشنهاد می‌دهد. با دو بار رد کردن پیاپی، آیتم به بالاترین پیشنهاددهنده می‌رسد. اگر هیچ پیشنهادی نباشد، آیتم فروخته نمی‌شود.</p>
+</section>
+<section class="panel"><h2>🎒 دارایی‌ها</h2><div class="players"><div><strong>🔵 بازیکن اول</strong><div class="owned" id="o0">هنوز خریدی انجام نشده.</div></div><div><strong>🔴 بازیکن دوم</strong><div class="owned" id="o1">هنوز خریدی انجام نشده.</div></div></div></section>
+<section class="panel"><h2>🏁 پایان رقابت</h2><div id="result" class="hint">پس از تمام شدن آیتم‌های یک بخش، نتیجه آن بخش را ببینید.</div></section>
+</div>
+<script>
+const data={
+"فوتبال":{e:"⚽",items:[["کریستیانو رونالدو",5],["لیونل مسی",5],["کیلیان امباپه",4],["ارلینگ هالند",4],["وینیسیوس جونیور",3],["جود بلینگام",3],["دروازه‌بان رؤیایی",2],["مربی افسانه‌ای",2],["ورزشگاه اختصاصی",5],["لباس تیم",1]]},
+"مدرسه":{e:"🏫",items:[["آزمایشگاه علوم",3],["کتابخانه بزرگ",3],["زمین فوتبال",4],["سالن ورزشی",3],["کلاس هوشمند",2],["سالن غذاخوری",2],["استخر مدرسه",4],["اتاق موسیقی",2],["حیاط سرسبز",2],["ربات کمک‌آموزشی",3]]},
+"خانه":{e:"🏠",items:[["عمارت بزرگ",6],["استخر",4],["اتاق گیمینگ",3],["سینمای خانگی",3],["آشپزخانه مدرن",2],["باغ زیبا",2],["اتاق مخفی",3],["زمین بازی",2],["آکواریوم بزرگ",2],["آسانسور شیشه‌ای",3]]},
+"ماشین‌های رؤیایی":{e:"🏎️",items:[["بوگاتی شیرون",6],["لامبورگینی",5],["فراری",5],["پورشه",4],["مک‌لارن",5],["تسلا",3],["مرسدس بنز",4],["بی‌ام‌و",3],["ماشین مسابقه‌ای",4],["گاراژ لوکس",3]]},
+"شهر رؤیایی":{e:"🌆",items:[["برج بلند",5],["پارک تفریحی",5],["ورزشگاه بزرگ",5],["بیمارستان مجهز",4],["مرکز خرید",4],["ایستگاه قطار",3],["باغ‌وحش",3],["سینما",2],["دریاچه مصنوعی",3],["فرودگاه",5]]},
+"تیم بسکتبال":{e:"🏀",items:[["مایکل جردن",5],["لبران جیمز",5],["استفن کری",4],["کوبی برایانت",4],["کوین دورنت",4],["یانیس",3],["مربی بسکتبال",2],["سالن اختصاصی",5],["لباس تیم",1],["تمرین‌کننده حرفه‌ای",2]]}
+};
+let cat="فوتبال",idx=0,money=[20,20],turn=0,bid=0,leader=-1,passes=0,owned=[[],[]],done=false;
+const $=id=>document.getElementById(id);
+const cats=Object.keys(data);
+cats.forEach(c=>{let b=document.createElement("button");b.className="tab"+(c===cat?" active":"");b.textContent=c;b.onclick=()=>{cat=c;reset();drawTabs()};$("tabs").appendChild(b)});
+function drawTabs(){[...$("tabs").children].forEach((b,i)=>b.classList.toggle("active",cats[i]===cat))}
+function fmt(n){return "$"+n}
+function render(){
+$("m0").textContent=fmt(money[0]);$("m1").textContent=fmt(money[1]);$("n0").textContent=owned[0].length+" آیتم";$("n1").textContent=owned[1].length+" آیتم";
+$("o0").innerHTML=owned[0].length?owned[0].map(x=>"• "+x).join("<br>"):"هنوز خریدی انجام نشده.";
+$("o1").innerHTML=owned[1].length?owned[1].map(x=>"• "+x).join("<br>"):"هنوز خریدی انجام نشده.";
+let list=data[cat].items;$("round").textContent=done?"این بخش تمام شد":`آیتم ${idx+1} از ${list.length}`;
+$("emoji").textContent=data[cat].e;
+$("item").textContent=done?"پایان مزایده":list[idx][0];$("price").textContent=fmt(bid);
+$("leader").textContent=leader<0?"هنوز پیشنهادی ثبت نشده":`پیشنهاد برنده: بازیکن ${leader+1}`;
+$("turn").textContent=done?"برای بخش دیگری از بازی، یک دسته انتخاب کن.":`نوبت بازیکن ${turn+1} است. ${passes?`(${passes} بار رد شده)`:""}`;
+$("bid").disabled=done||leader===turn||money[turn]<bid+1;
+$("pass").disabled=done;$("next").disabled=!done;
+$("result").innerHTML=done?`🔵 بازیکن اول: ${owned[0].length} آیتم | پول: ${fmt(money[0])}<br>🔴 بازیکن دوم: ${owned[1].length} آیتم | پول: ${fmt(money[1])}<br><span class="winner">${owned[0].length>owned[1].length?"بازیکن اول برنده این بخش است!":owned[1].length>owned[0].length?"بازیکن دوم برنده این بخش است!":"این بخش مساوی شد!"}</span>`:"پس از تمام شدن آیتم‌های یک بخش، نتیجه آن بخش را ببینید.";
+}
+function finish(){if(leader>=0){money[leader]-=bid;owned[leader].push(data[cat].items[idx][0])}idx++;bid=0;leader=-1;passes=0;if(idx>=data[cat].items.length)done=true;render()}
+$("bid").onclick=()=>{bid++;leader=turn;passes=0;turn=1-turn;render()};
+$("pass").onclick=()=>{passes++;if(passes>=2)finish();else{turn=1-turn;render()}};
+$("next").onclick=()=>{idx=0;done=false;bid=0;leader=-1;passes=0;turn=0;render()};
+function reset(){idx=0;money=[20,20];turn=0;bid=0;leader=-1;passes=0;owned=[[],[]];done=false;render()}
+$("reset").onclick=reset;render();
+</script></body></html>
